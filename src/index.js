@@ -58,7 +58,31 @@ app.post('/tasks', (req, res) => {
     })
 })
 
+app.get('/tasks', (req, res) => {
+    Task.find( {} ).then((task) => {
+        res.send(task)
+    }).catch((e) => {
+        res.send(e)
+    })
+})
 
+app.get('/tasks/:id' , (req, res) => {
+    if (validator.isAlphanumeric(req.params.id)) {
+        const _id = req.params.id
+        Task.findById(_id).then((task) => {
+            if (!task) {
+                return req.send('Task not found')
+            }
+            res.send(task)
+        }).catch((e) => {
+            res.send(e)
+        })
+        }
+        else {
+            console.log('input validation error')
+        }
+    }
+)
 
 
 
