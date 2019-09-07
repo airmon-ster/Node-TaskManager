@@ -14,69 +14,114 @@ app.use(express.json(), helmet())
 
 // app.use(express.json())
 
-app.post('/users', (req, res) => {
+app.post('/users', async (req, res) => {
     const user = new User(req.body)
-    user.save(user).then(() => {
+
+    try {
+        await user.save()
         res.send(user)
-    }).catch((e) => {
-        res.status(400).send(e)
-    })
+    } catch (e) {
+        res.send(e)
+    }
 })
+//     user.save(user).then(() => {
+//         res.send(user)
+//     }).catch((e) => {
+//         res.status(400).send(e)
+//     })
+// })
 
-app.get('/users' , (req, res) => {
-    User.find({}).then((users) => {
+app.get('/users' , async (req, res) => {
+    try {
+        const users = await User.find({})
         res.send(users)
-    }).catch((error) => {
-        res.send(error)
-    })
+    } catch (e) {
+        res.send(e)
+    }
 })
 
-app.get('/users/:id', (req, res) => {
+app.get('/users/:id', async (req, res) => {
 
     if (validator.isAlphanumeric(req.params.id)) {
         const _id = req.params.id
-        User.findById(_id).then((user) => {
-            if (!user) {
-                return res.send('User not found')
-            }
+        
+        try {
+        const user = await User.findById(_id)
+        if (!user){
+            return res.send('No users by that ID')
+        }
+        res.send(user)
+        } catch (e) {
+            res.send(e)
+        }
 
-            res.send(user)
-        }).catch((error) => {
-            res.send(error)
-        })
+        // 
+        // User.findById(_id).then((user) => {
+        //     if (!user) {
+        //         return res.send('User not found')
+        //     }
+
+        //     res.send(user)
+        // }).catch((error) => {
+        //     res.send(error)
+        // })
     } else {
         console.log('input validation error')
     }
 })
 
-app.post('/tasks', (req, res) => {
-    const task = new Task(req.body)
-    task.save(task).then(() => {
-        res.send(task)
-    }).catch((e) => {
-        res.status(400).send(e)
-    })
-})
-
-app.get('/tasks', (req, res) => {
-    Task.find( {} ).then((task) => {
-        res.send(task)
-    }).catch((e) => {
+app.post('/tasks', async (req, res) => {
+    try {
+    const task = await new Task(req.body)
+    const saveTask = await task.save(task)
+    res.send(task)
+    } catch (e) {
         res.send(e)
-    })
+    }
+    // const task = new Task(req.body)
+    // task.save(task).then(() => {
+    //     res.send(task)
+    // }).catch((e) => {
+    //     res.status(400).send(e)
+    // })
 })
 
-app.get('/tasks/:id' , (req, res) => {
+app.get('/tasks', async (req, res) => {
+
+    try {
+    const finder = await Task.find( {})
+    res.send(finder)
+    } catch (e) {
+        res.send(e)
+    }
+    // Task.find( {} ).then((task) => {
+    //     res.send(task)
+    // }).catch((e) => {
+    //     res.send(e)
+    // })
+})
+
+app.get('/tasks/:id' , async (req, res) => {
     if (validator.isAlphanumeric(req.params.id)) {
         const _id = req.params.id
-        Task.findById(_id).then((task) => {
-            if (!task) {
-                return req.send('Task not found')
+
+        try {
+            const taskFind = await Task.findById(_id)
+            if (!taskFind){
+                return res.send('Task not found')
             }
-            res.send(task)
-        }).catch((e) => {
+            res.send(taskFind)
+        } catch (e) {
             res.send(e)
-        })
+        }
+        // Task.findById(_id).then((task) => {
+        //     if (!task) {
+        //         return req.send('Task not found')
+        //     }
+        //     res.send(task)
+        // }).catch((e) => {
+        //     res.send(e)
+        // })
         }
         else {
             console.log('input validation error')

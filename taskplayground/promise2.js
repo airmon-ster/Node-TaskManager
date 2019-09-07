@@ -12,11 +12,23 @@ const Task = require('../src/models/task')
 //     console.log(e)
 // })
 
-Task.findByIdAndRemove('5d72d7d9aa05074dd374b3a6').then((status) => {
-    console.log(status)
-    return Task.countDocuments( {completed: false})
-}).then((result) => {
-    console.log(result)
+// Task.findByIdAndRemove('5d72d7d9aa05074dd374b3a6').then((status) => {
+//     console.log(status)
+//     return Task.countDocuments( {completed: false})
+// }).then((result) => {
+//     console.log(result)
+// }).catch((e) => {
+//     console.log(e)
+// })
+
+const deleteTaskAndCount = async (id) => {
+    const task = await Task.findByIdAndDelete(id)
+    const count = await Task.countDocuments({completed:false})
+    return count
+}
+
+deleteTaskAndCount('5d72d7e3aa05074dd374b3a7').then((result) => {
+    console.log('removed', id)
 }).catch((e) => {
     console.log(e)
 })
