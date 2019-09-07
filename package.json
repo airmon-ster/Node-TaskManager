@@ -1,7 +1,6 @@
 {
   "name": "taskmanager",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -18,6 +17,15 @@
   },
   "devDependencies": {
     "helmet": "^3.20.0",
-    "nodemon": "^1.19.1"
-  }
+    "nodemon": "^1.19.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/InstinctreborN/Node-TaskManager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/InstinctreborN/Node-TaskManager/issues"
+  },
+  "homepage": "https://github.com/InstinctreborN/Node-TaskManager#readme",
+  "description": ""
 }

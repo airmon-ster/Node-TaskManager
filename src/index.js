@@ -4,13 +4,17 @@ const validator = require('validator')
 require('./db/mongoose')
 const User = require('./models/user')
 const Task = require('./models/task')
+const userRouter = require('./routers/user')
 
 
 const app = express()
 const port = process.env.PORT || 3000
 
-// app.use(helmet())
-app.use(express.json(), helmet())
+// 
+app.use(express.json())
+app.use(helmet())
+app.use(userRouter)
+
 
 // app.use(express.json())
 
@@ -68,6 +72,49 @@ app.get('/users/:id', async (req, res) => {
     } else {
         console.log('input validation error')
     }
+})
+
+app.patch('/users/:id', async (req, res) => {
+    if (validator.isAlphanumeric(req.params.id)) {
+
+        const updates = Object.keys(req.body)
+        const allowedUpdates = ['name', 'email', 'password', 'age']
+        const isValidOp = updates.every((update) => allowedUpdates.includes(update))
+
+        if (!isValidOp) {
+            return res.status(400).send({error: "invalid op"})
+        }
+
+        const _id = req.params.id
+        const _body = req.body
+    try {
+        const user = await User.findByIdAndUpdate(_id, _body, {new: true, runValidators: true})
+
+        if (!user) {
+            return res.send('No user')
+        }
+
+        res.send(user)
+    } catch (e) {
+        res.send(e)
+    }
+}
+})
+
+app.delete('/users/:id', async (req, res) => {
+    if (validator.isAlphanumeric(req.params.id)) {
+        _id = req.params.id
+    try {
+        const user = await User.findByIdAndDelete(_id)
+
+        if (!user) {
+            return res.status(404).send('no user')
+        }
+        res.send(user)
+    } catch (e) {
+        res.send(500).send(e)
+    }
+}
 })
 
 app.post('/tasks', async (req, res) => {
@@ -129,9 +176,48 @@ app.get('/tasks/:id' , async (req, res) => {
     }
 )
 
+app.patch('/tasks/:id', async (req, res) => {
+    if (validator.isAlphanumeric(req.params.id)) {
 
+        const updates = Object.keys(req.body)
+        const allowedUpdates = ['description', 'completed']
+        const isValidOp = updates.every((update) => allowedUpdates.includes(update))
 
+        if (!isValidOp) {
+            return res.status(400).send({error: "invalid op"})
+        }
 
+        const _id = req.params.id
+        const _body = req.body
+    try {
+        const task = await Task.findByIdAndUpdate(_id, _body, {new: true, runValidators: true})
+
+        if (!task) {
+            return res.send('No task')
+        }
+
+        res.send(task)
+    } catch (e) {
+        res.send(e)
+    }
+}
+})
+
+app.delete('/tasks/:id', async (req, res) => {
+    if (validator.isAlphanumeric(req.params.id)) {
+        _id = req.params.id
+    try {
+        const task = await Task.findByIdAndDelete(_id)
+
+        if (!task) {
+            return res.status(404).send('no task')
+        }
+        res.send(task)
+    } catch (e) {
+        res.send(500).send(e)
+    }
+}
+})
 
 app.listen(port, "0.0.0.0", () => {
     console.log('Server up and running on port ' + port)
