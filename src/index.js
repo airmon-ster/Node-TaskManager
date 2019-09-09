@@ -34,14 +34,3 @@ app.listen(port, "0.0.0.0", () => {
     console.log('Server up and running on port ' + port)
 })
 
-const jwt = require('jsonwebtoken')
-
-const myFunction = async () => {
-    // const authToken = jwt.sign({_id : 'test'}, 'thisismysig', {expiresIn: '15 minutes'})
-    // console.log(authToken)
-
-    // const verify = jwt.verify(authToken, 'thisismysig')
-    // console.log(verify)
-}
-
-myFunction()
