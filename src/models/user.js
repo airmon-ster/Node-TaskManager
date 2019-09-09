@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema( {
     tokens: [{
         authToken: {
             type: String,
-            required: false
+            required: true
         }
     }]
 })
