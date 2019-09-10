@@ -1,13 +1,19 @@
 const express = require('express')
 const Task = require('../models/task')
 const validator = require('validator')
+const auth = require('../middleware/auth')
 
 const taskRouter = new express.Router()
 
 
-taskRouter.post('/tasks', async (req, res) => {
+taskRouter.post('/tasks', auth, async (req, res) => {
     try {
-    const task = await new Task(req.body)
+    //const task = await new Task(req.body)
+
+    const task = new Task({
+        ...req.body,
+        owner: req.user._id
+    })
     const saveTask = await task.save(task)
     res.send(task)
     } catch (e) {
@@ -21,11 +27,37 @@ taskRouter.post('/tasks', async (req, res) => {
     // })
 })
 
-taskRouter.get('/tasks', async (req, res) => {
+// GET /tasks?completed=true/false
+// limit skip
+// GET /tasks?limit=10&skip=0
+// GET /tasks?sortBy=createdAt:desc
+taskRouter.get('/tasks', auth, async (req, res) => {
+
+    const match = {}
+    const sort = {}
+
+    if (req.query.completed) {
+        match.completed = req.query.completed === 'true'
+    }
+
+    if (req.query.sortBy) {
+        const parts = req.query.sortBy.split(':')
+        sort[parts[0]] = parts[1] === 'desc' ? -1 : 1
+    }
 
     try {
-    const finder = await Task.find( {})
-    res.send(finder)
+    // const finder = await Task.find({})
+    //const finder = await Task.find({owner: req.user._id})
+    await req.user.populate({
+        path: 'tasks',
+        match,
+        options: {
+            limit: parseInt(req.query.limit),
+            skip: parseInt(req.query.skip),
+            sort
+        }
+    }).execPopulate()
+    res.status(200).send(req.user.tasks)
     } catch (e) {
         res.send(e)
     }
@@ -36,18 +68,20 @@ taskRouter.get('/tasks', async (req, res) => {
     // })
 })
 
-taskRouter.get('/tasks/:id' , async (req, res) => {
-    if (validator.isAlphanumeric(req.params.id)) {
+taskRouter.get('/tasks/:id', auth, async (req, res) => {
+
         const _id = req.params.id
 
         try {
-            const taskFind = await Task.findById(_id)
-            if (!taskFind){
-                return res.send('Task not found')
+            //const taskFind = await Task.findById(_id)
+            const task = await Task.findOne({_id, owner: req.user._id})
+
+            if (!task){
+                return res.status(404).send()
             }
-            res.send(taskFind)
+            res.send(task)
         } catch (e) {
-            res.send(e)
+            res.status(500).send()
         }
         // Task.findById(_id).then((task) => {
         //     if (!task) {
@@ -57,14 +91,11 @@ taskRouter.get('/tasks/:id' , async (req, res) => {
         // }).catch((e) => {
         //     res.send(e)
         // })
-        }
-        else {
-            console.log('input validation error')
-        }
+        
     }
 )
 
-taskRouter.patch('/tasks/:id', async (req, res) => {
+taskRouter.patch('/tasks/:id', auth, async (req, res) => {
     if (validator.isAlphanumeric(req.params.id)) {
 
         const updates = Object.keys(req.body)
@@ -80,15 +111,15 @@ taskRouter.patch('/tasks/:id', async (req, res) => {
     try {
         //const task = await Task.findByIdAndUpdate(_id, _body, {new: true, runValidators: true})
 
-        const task = await Task.findById(_id)
+        // const task = await Task.findById(_id)
+        const task = await Task.findOne({_id, owner: req.user._id})
         
-        updates.forEach((update) => task[update] = req.body[update])
-
-        await task.save()
-
         if (!task) {
-            return res.send('No task')
+            return res.status(400).send()
         }
+
+        updates.forEach((update) => task[update] = req.body[update])
+        await task.save()
 
         res.send(task)
     } catch (e) {
@@ -97,20 +128,20 @@ taskRouter.patch('/tasks/:id', async (req, res) => {
 }
 })
 
-taskRouter.delete('/tasks/:id', async (req, res) => {
-    if (validator.isAlphanumeric(req.params.id)) {
+taskRouter.delete('/tasks/:id', auth, async (req, res) => {
         _id = req.params.id
     try {
-        const task = await Task.findByIdAndDelete(_id)
+        //const task = await Task.findByIdAndDelete(_id)
+        const task = await Task.findOneAndDelete({_id, owner: req.user._id})
 
         if (!task) {
-            return res.status(404).send('no task')
+            return res.status(404).send()
         }
         res.send(task)
     } catch (e) {
         res.send(500).send(e)
     }
-}
+
 })
 
 module.exports = taskRouter
