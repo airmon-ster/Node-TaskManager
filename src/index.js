@@ -16,8 +16,14 @@ const port = process.env.PORT || 3000
 //     dest: 'images/'
 // })
 
+// const middlewareError = (req, res, next) => {
+//     throw new Error('middleware error')
+// }
+
 // app.post('/upload', upload.single('upload'), (req, res) => {
 //     res.send()
+// }, (error, req, res, next) => {
+//     res.status(400).send({error: error.message})
 // })
 
 
@@ -48,8 +54,9 @@ app.listen(port, "0.0.0.0", () => {
     console.log('Server up and running on port ' + port)
 })
 
-const Task =  require('./models/task')
-const User = require('./models/user')
+
+// const Task =  require('./models/task')
+// const User = require('./models/user')
 
 // const main = async () => {
 //     // const task = await Task.findById('5d75dda0af292202b005b372')
