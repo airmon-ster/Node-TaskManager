@@ -1,5 +1,5 @@
 {
-  "name": "taskmanager",
+  "name": "secoverflow",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -29,11 +29,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/InstinctreborN/Node-TaskManager.git"
+    "url": "git+https://github.com/InstinctreborN/SecOverflowAPI"
   },
   "bugs": {
-    "url": "https://github.com/InstinctreborN/Node-TaskManager/issues"
+    "url": "https://github.com/InstinctreborN/SecOverflowAPI/issues"
   },
-  "homepage": "https://github.com/InstinctreborN/Node-TaskManager#readme",
-  "description": ""
+  "homepage": "https://github.com/InstinctreborN/SecOverflowAPI#readme",
+  "description": "SecOverflow API users and jobs"
 }
