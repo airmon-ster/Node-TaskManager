@@ -16,8 +16,8 @@ const userSchema = new mongoose.Schema( {
         trim: true,
         minlength: 6,
         validate(value){
-            if (value === 'password'){
-                throw new Error('Password cannot be \'password\' ')
+            if (value.toLowerCase() === 'password'){
+                throw new Error('Password cannot be \'password\'.')
             }
         }
 
@@ -30,23 +30,23 @@ const userSchema = new mongoose.Schema( {
         lowercase: true,
         validate(value) {
             if (!validator.isEmail(value)){
-                throw new Error('Not an email')
+                throw new Error('Please enter a valid email address.')
             }
         }
     },
     age: {
         type: Number,
-        default: 0,
+        default: 18,
         validate(value) {
-            if (value < 0){
-                throw new Error('Age must be greater than 0')
+            if (value < 0 || value > 110){
+                throw new Error('Age must be between 1 and 110')
             }
         }
     },
     tokens: [{
         authToken: {
             type: String,
-            required: true
+            required: false
         }
     }],
     avatar: {
@@ -64,7 +64,11 @@ userSchema.virtual('tasks', {
 
 userSchema.methods.generateAuthToken = async function () {
     const user = this
-    const authToken = jwt.sign( { _id: user._id.toString() }, process.env.JWT_SECRET)
+    const authToken = jwt.sign( { _id: user._id.toString() }, process.env.JWT_KEY_PRIV, {
+        algorithm: 'RS256',
+        expiresIn: '30 minutes'
+    })
+    console.log(authToken)
 
     user.tokens = user.tokens.concat({ authToken })
     await user.save()
@@ -121,21 +125,6 @@ userSchema.pre('remove', async function (next) {
 })
 
 
-//https://mongoosejs.com/docs/validation.html
 const User = mongoose.model('User', userSchema)
-
-// const me = new User({
-//     email: 'test@test.com',
-//     password: 'pass',
-//     name: 'random',
-// })
-
-// me.save().then((me) => {
-//     console.log(me)
-// }).catch((error) => {
-//     console.log(error)
-// })
-
-
 
 module.exports = User
